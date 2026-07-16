@@ -77,7 +77,7 @@ public class MembersService {
 	 * @param memberId メンバーid
 	 * @return idが存在する場合true
 	 */
-	public boolean existsById(String memberId) {
+	public boolean existsByMemberId(String memberId) {
 		
 		if(membersRepository.existsByMemberId(memberId)) {
 			
@@ -200,24 +200,18 @@ public class MembersService {
 	/**
 	 * メンバー論理削除の機能
 	 */
-	public MemberDto delete(String id) throws NotFoundException{
+	public MemberDto delete(MemberDto memberDto) throws NotFoundException{
 		
 //		保存
 		try {
 			
-//			idよりoptionalインスタンスを取得
-			Optional<Member> memberOpt = membersRepository.findById(id);
-			
-//			空の場合例外投げる
-			if(memberOpt.isEmpty()) {
-				throw new NotFoundException();
-			}
-			
 //			エンティティを取得
-			Member member = memberOpt.get();
+			Member member = MemberDto.convertDtoToEntity(memberDto);
 			
 //			削除フラグ更新
 			member.setDeleteFlg(BigDecimal.ONE);
+			
+			System.out.println(member.getDeleteFlg());
 			
 			membersRepository.save(member);
 //			dtoを取得

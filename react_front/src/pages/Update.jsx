@@ -1,28 +1,27 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from "react-hook-form";
+import MenuLinks from "./MenuLinks";
 
-function Insert() {
+function Update() {
 
-    // 戻るボタンからの情報を受け取る
+    // 「戻る」から来た情報を保持
     const location = useLocation();
+    
+    // urlからidを取得する
+    const { id } = useParams();
 
-    // ページ遷移の関数を生成
+    // ページ遷移関数
     const navigate = useNavigate();
-
-    // 事業所、役職情報を受け取る
-    const [member, setMember] = useState([]);
-    const [places, setPlaces] = useState([]);
-    const [positions, setPositions] = useState([]);
 
     // バリデーションの関数を定義
     const {
         register,
-        handleSubmit,
         reset,
+        handleSubmit,
         formState: { errors },
     } = useForm();
-
+    
     // 起動後すぐに実行
     useEffect(() => {
 
@@ -37,7 +36,7 @@ function Insert() {
             return;
         }
 
-        fetch(`http://localhost:8080/members/insert`)
+        fetch(`http://localhost:8080/members/update/${id}`)
             .then(response => response.json())
             .then(data => {
                 setMember(data.member);
@@ -46,14 +45,19 @@ function Insert() {
 
                 reset(data.member);
             })
-    }, [reset]);
+    }, [id, reset]);
 
-    // メニュー押して遷移
-    const handleMenu = () => {
-        navigate('/');
+    // メンバー、事業所、役職を定義
+    const [member, setMember] = useState([]);
+    const [places, setPlaces] = useState([]);
+    const [positions, setPositions] = useState([]);
+
+    // メニュー画面に行く関数
+    const handleList = () => {
+        navigate('/list');
     }
 
-    // 送信ボタン押して、情報を確認画面に送り遷移
+    // 更新ボタン押して、情報を確認画面に送り遷移
     const onSubmit = (data) => {
 
         // 選択した事業所、役職を定義
@@ -64,28 +68,29 @@ function Insert() {
             place => place.id == data.placeId
         );
 
-        // 確認画面に遷移、
-        navigate('/insertConf', {
+        // 確認画面に遷移、registDateなども引き継ぐ場合、memberを入れる
+        navigate('/updateConf', {
             state: {
                 member: {
-                ...data,
-                positionName: selectedPosition?.positionName,
-                placeName: selectedPlace?.placeName
+                    ...member,
+                    ...data,
+                    positionName: selectedPosition?.positionName,
+                    placeName: selectedPlace?.placeName
+                },
+                places,
+                positions,
             },
-            positions, 
-            places,
-            }
-        });
+        },);
     }
 
-    return (
+    // 画面表示
+    return(
         <>
-             <div id="wrapper">
+            <div id="wrapper">
+                <MenuLinks />
                 <div className="menu">
-                    <a onClick={ handleMenu }>メニュー</a><br />
-                </div>
-                <div className="menu">
-                    <h2>新規登録画面</h2>
+                    <h2>更新画面</h2>
+                    <p>以下のデータの更新を行います</p>
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <table className="ct">
@@ -93,20 +98,13 @@ function Insert() {
                             <th>社員ID</th>
                             <td>
                                 <input type="text"
-
                                     {...register("memberId", {
                                        required: "社員IDは必須です。",
                                        maxLength: {
                                         value: 10, 
                                         message: "10文字以内で入力してください。",
                                        },
-                                       validate: async(value) => {
-                                            const response = await fetch(`http://localhost:8080/members/insert/check/${value}`);
-                                            const exists = await response.json();
-                                            return !exists || "この社員IDはすでに登録されています"
-                                       }
-                                    })}
-                                     />
+                                    })}/>
                                 {errors.memberId && (
                                     <div className="error-message">{errors.memberId.message}</div>
                                 )}
@@ -122,7 +120,7 @@ function Insert() {
                                         value: 40,
                                         message: "40文字以内で入力してください。" ,
                                        },
-                                    })} />
+                                    })}/>
                                 {errors.memberName && (
                                     <div className="error-message">{errors.memberName.message}</div>
                                 )}
@@ -138,7 +136,7 @@ function Insert() {
                                             value: 3,
                                             message: "3桁以内で入力してください",
                                         },
-                                    })} />
+                                    })}/>
                                 {errors.age && (
                                     <div className="error-message">{errors.age.message}</div>
                                 )}
@@ -155,10 +153,10 @@ function Insert() {
                                     })}/>
                                 女<input 
                                     type="radio" 
-                                    value="1" 
+                                    value= "1"
                                     {...register("sexFlg", {
                                         required: "性別は必須です。",
-                                    })} />
+                                    })}/>
                                 {errors.sexFlg && (
                                     <div className="error-message">{errors.sexFlg.message}</div>
                                 )}
@@ -173,7 +171,7 @@ function Insert() {
                                             value: 50, 
                                             message: "50文字以内で入力してください",
                                     },
-                                })} />
+                                })}/>
                                 {errors.address && (
                                     <div className="error-message">{errors.address.message}</div>
                                 )}
@@ -188,7 +186,7 @@ function Insert() {
                                             value: 11,
                                             message: "11文字以内で入力してください"
                                        },
-                                    })}  />
+                                    })}/>
                                 {errors.telephone && (
                                     <div className="error-message">{errors.telephone.message}</div>
                                 )}
@@ -203,7 +201,7 @@ function Insert() {
                                             value: 20,
                                             message: "20文字以内で入力してください"
                                        },
-                                    })}  />
+                                    })}/>
                                 {errors.mail && (
                                     <div className="error-message">{errors.mail.message}</div>
                                 )}
@@ -237,12 +235,14 @@ function Insert() {
                         </tr>
                     </table>
                     <div className="menu">
-                        <input type="submit" value="登録"/>
-                    </div>
+						<input type="submit" value="更新"/>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<button type="button" onClick = { handleList }>戻る</button>
+					</div>
                 </form>
             </div>
         </>
-    )   
+    )
 }
 
-export default Insert;
+export default Update;

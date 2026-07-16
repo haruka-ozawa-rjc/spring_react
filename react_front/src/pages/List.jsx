@@ -38,18 +38,18 @@ function List() {
     }
 
     // 詳細画面へ遷移
-    const handleDetail = () => {
-        navigate('/detail');
+    const handleDetail = (id) => {
+        navigate(`/detail/${id}`);
     }
 
     // 更新画面へ遷移
-    const handleUpdate = () => {
-        navigate('/update');
+    const handleUpdate = (id) => {
+        navigate(`/update/${id}`);
     }
 
     // 削除画面へ遷移
-    const handleDelete = () => {
-        navigate('/delete');
+    const handleDelete = (id) => {
+        navigate(`/delete/${id}`);
     }
 
     // 表示
@@ -154,20 +154,20 @@ function List() {
                             <td>{member.memberId}</td>
                             <td>{member.memberName}</td>
                             <td>{member.age}</td>
-                            <td>{member.sexFlg == 0 ? "男" : "女"}</td>
+                            <td>{member.sexFlg === 0 ? "男" : "女"}</td>
                             <td>{member.address}</td>
                             <td>{member.telephone}</td>
                             <td>{member.mail}</td>
                             <td>{positions.find(position => position.id == member.positionId) ?.positionName}</td>
                             <td>{places.find(place => place.id == member.placeId) ?.placeName}</td>
                             <td>
-                                <button onClick = {handleDetail}>詳細</button>
+                                <button onClick = {() => handleDetail(member.memberId)}>詳細</button>
                             </td>
                             <td>
-                                <button onClick = {handleUpdate}>更新</button>
+                                <button onClick = {() => handleUpdate(member.memberId)}>更新</button>
                             </td>
                             <td>
-                                <button onClick = {handleDelete}>削除</button>
+                                <button onClick = {() => handleDelete(member.memberId)}>削除</button>
                             </td>
                         </tr>
                     ))}

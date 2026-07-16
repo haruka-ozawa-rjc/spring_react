@@ -4,7 +4,7 @@ function InsertConf() {
 
     // 登録画面からフォーム情報を受け取る
     const location = useLocation();
-    const member = location.state;
+    const { member, places, positions } = location.state;
 
     // ページ遷移の関数を定義
     const navigate = useNavigate();
@@ -12,6 +12,17 @@ function InsertConf() {
     // メニュー遷移
     const handleMenu = () => {
         navigate('/');
+    }
+
+    // 戻る押下で新規登録画面へ遷移
+    const handleBack = () => {
+        navigate(`/insert`, {
+            state: {
+                member,
+                positions,
+                places,
+            },
+        });
     }
 
     // 登録処理
@@ -45,7 +56,7 @@ function InsertConf() {
                 <div className="menu">
                     <a onClick={ handleMenu }>メニュー</a><br />
                 </div>
-                <div class="menu">
+                <div className="menu">
                     <h2>新規登録&nbsp;確認画面</h2>
                     <p>以下のデータを登録します&nbsp;よろしいですか</p>
                 </div>
@@ -65,7 +76,7 @@ function InsertConf() {
                         </tr>
                         <tr>
                             <th>性別</th>
-                            <td>{ member.sexFlg }</td>
+                            <td>{ member.sexFlg === "0" ? "男" : "女" }</td>
                         </tr>
                         <tr>
                             <th>住所</th>
@@ -90,6 +101,7 @@ function InsertConf() {
                     </table>
                     <div className="menu">
                         <input type="button" value="登録" onClick={ handleInsert } />
+                        <button type="button" onClick={ handleBack }>戻る</button>
                     </div>
                 </form>
             </div>

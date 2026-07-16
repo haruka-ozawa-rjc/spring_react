@@ -343,7 +343,6 @@ public class MemberDto {
 		memberDto.setRegistDate(memberRequest.getRegistDate());
 		memberDto.setUpdateDate(memberRequest.getUpdateDate());
 		memberDto.setDeleteFlg(memberRequest.getDeleteFlg());
-		memberDto.setBeforeMemberId(memberRequest.getBeforeMemberId());
 		
 		return memberDto;
 	}
