@@ -1,28 +1,19 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import MenuLinks from "./MenuLinks";
 
-function InsertComp() {
+function DeleteComp() {
 
     // memberを受け取る
     const location = useLocation();
     const member = location.state;
 
-    // ページ遷移関数の生成
-    const navigate = useNavigate();
-
-    // メニュー画面に行く関数
-    const handleMenu = () => {
-        navigate('/');
-    }
-
     return(
         <>
             <div id="wrapper">
+                <MenuLinks />
                 <div className="menu">
-                    <a onClick={ handleMenu }>メニュー</a><br />
-                </div>
-                <div className="menu">
-                    <h2>新規登録&nbsp;完了画面</h2>
-                    <p>以下のデータが登録されました</p>
+                    <h2>削除完了画面</h2>
+                    <p>以下のデータが削除されました</p>
 			    </div>
                 <form>
                     <table className="ct">
@@ -40,7 +31,7 @@ function InsertComp() {
                         </tr>
                         <tr>
                             <th>性別</th>
-                            <td>{ member.sexFlg === "0" ? "男" : "女" }</td>
+                            <td>{ member.sexFlg === 0 ? "男" : "女" }</td>
                         </tr>
                         <tr>
                             <th>住所</th>
@@ -69,4 +60,4 @@ function InsertComp() {
     )
 }
 
-export default InsertComp;
+export default DeleteComp;

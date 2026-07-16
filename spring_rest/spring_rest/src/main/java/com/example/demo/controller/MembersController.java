@@ -3,11 +3,13 @@ package com.example.demo.controller;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -113,5 +115,203 @@ public class MembersController {
 					.status(HttpStatus.SERVICE_UNAVAILABLE)
 					.body(e.getMessage());	
 		}
+	}
+	
+	/**
+	 * 
+	 * @param memberId メンバーid
+	 * @return idが存在する場合true
+	 */
+	@GetMapping("/members/insert/check/{memberId}")
+	private boolean checkMemberId(@PathVariable String memberId) {
+		return membersService.existsByMemberId(memberId);
+	}
+	
+	/**
+	 * 詳細画面の表示
+	 * 
+	 * @param id ユーザーid
+	 * @param model ビューに渡す引数
+	 * @param redirAttrs リダイレクトの引数
+	 * @return ユーザーが存在する場合：詳細画面を表示、いない場合：一覧画面へリダイレクト
+	 */
+	@GetMapping("/members/detail/{id}")
+	private ResponseEntity<?> showDetail(@PathVariable String id) {
+		
+		try {
+			
+//			サービスクラスからidでmemberDtoを取得
+			MemberDto memberDto = membersService.findByMemberId(id);
+			
+//			フロントに送るhashmapを用意
+			HashMap<String, Object> response = new HashMap<>();
+			
+//			viewに渡す
+			response.put("member", memberDto);
+			response.put("positions", positionsService.getAll());
+			response.put("places", placeService.getAll());
+			
+//			詳細画面を表示
+			return ResponseEntity.ok(response);
+			
+		} catch (NotFoundException e) {
+			
+//		    メンバーが見つからない場合、エラーメッセージを返す
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+			
+		} catch (ConnectionException | DatabaseException e) {
+		
+//			データベースのエラーで、エラーメッセージを返す
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+		
+		} 
+	}
+	
+
+	/**
+	 * 更新画面の表示
+	 */
+	@GetMapping("/members/update/{id}")
+	private ResponseEntity<?> showUpdate(@PathVariable String id) {
+		
+		try {	
+//				サービスクラスからidでmemberDtoを取得
+				MemberDto memberDto = membersService.findByMemberId(id);
+//				更新前のidをセットして渡す
+				memberDto.setBeforeMemberId(memberDto.getMemberId());
+				
+//				フロントに渡すリストを作成
+				HashMap<String, Object> response = new HashMap<>();
+					
+//				フロントに渡す
+				response.put("member", memberDto);
+				response.put("positions", positionsService.getAll());
+				response.put("places", placeService.getAll());
+				
+//					更新画面を表示
+				return ResponseEntity.ok(response);
+			
+		} catch (NotFoundException e) {
+			
+//		    メンバーが見つからない場合、エラーメッセージを返す
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+			
+		} catch (ConnectionException | DatabaseException e) {
+			
+//		    データベースのエラーで、エラーメッセージを返す
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 更新機能
+	 */
+	@PostMapping("/members/updateComp")
+	private ResponseEntity<?> update(@RequestBody MemberDto memberDto) {
+		
+		try {
+			
+//			サービスクラスでメンバー新規登録
+			membersService.update(memberDto);
+			
+			return ResponseEntity.ok().build();
+			
+		} catch (NotFoundException e) {
+			
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+		
+		} catch (ConnectionException | DatabaseException e) {
+			
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+		
+		} 
+	}
+	
+	/**
+	 * 削除画面の表示
+	 */
+	@GetMapping("/members/delete/{id}")
+	private ResponseEntity<?> showDelete(@PathVariable String id) {
+		
+		try {
+			
+//			サービスクラスからidでmemberDtoを取得
+			MemberDto memberDto = membersService.findByMemberId(id);
+			
+//			リストを作成
+			HashMap<String, Object> response = new HashMap<>();
+			
+//			フロントに渡す
+			response.put("member", memberDto);
+			response.put("positions", positionsService.getAll());
+			response.put("places", placeService.getAll());
+			
+//			削除画面を表示
+			return ResponseEntity.ok(response);
+			
+		} catch (NotFoundException e) {
+			
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+			
+		} catch (ConnectionException | DatabaseException e) {
+			
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+		
+		
+		} 
+	}
+	
+	/**
+	 * 削除機能
+	 */
+	@PostMapping("/members/deleteComp")
+	private ResponseEntity<?> delete(@RequestBody MemberDto memberDto) {
+		
+		try {
+			
+//			削除
+			MemberDto deleteMember = membersService.delete(memberDto);
+			
+//			リストを生成
+			HashMap<String, Object> response = new HashMap<>();
+			
+//			フロントに渡す
+			response.put("member", deleteMember);
+			response.put("positions", positionsService.getAll());
+			response.put("places", placeService.getAll());
+			
+//			削除できた場合、削除完了ページに遷移
+			return ResponseEntity.ok(response);
+		
+			
+		} catch (NotFoundException e) {
+			
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+			
+		} catch (ConnectionException | DatabaseException e) {
+			
+			return ResponseEntity
+					.status(HttpStatus.SERVICE_UNAVAILABLE)
+					.body(e.getMessage());
+
+		} 
 	}
 }

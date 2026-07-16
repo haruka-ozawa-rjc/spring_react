@@ -1,29 +1,36 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import MenuLinks from "./MenuLinks";
 
-function InsertComp() {
+function Detail() {
 
-    // memberを受け取る
-    const location = useLocation();
-    const member = location.state;
+    // メンバー、事業所、役職を定義
+    const [member, setMember] = useState([]);
+    const [places, setPlaces] = useState([]);
+    const [positions, setPositions] = useState([]);
 
-    // ページ遷移関数の生成
-    const navigate = useNavigate();
+    // urlからidを取得する
+    const { id } = useParams();
 
-    // メニュー画面に行く関数
-    const handleMenu = () => {
-        navigate('/');
-    }
+    // 起動後すぐに実行
+    useEffect(() => {
+        fetch(`http://localhost:8080/members/detail/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                setMember(data.member);
+                setPlaces(data.places);
+                setPositions(data.positions);
+            })
+    }, [id]);
 
+    // 画面表示
     return(
         <>
             <div id="wrapper">
+                <MenuLinks />
                 <div className="menu">
-                    <a onClick={ handleMenu }>メニュー</a><br />
+                    <h2>詳細画面</h2>
                 </div>
-                <div className="menu">
-                    <h2>新規登録&nbsp;完了画面</h2>
-                    <p>以下のデータが登録されました</p>
-			    </div>
                 <form>
                     <table className="ct">
                         <tr>
@@ -40,7 +47,7 @@ function InsertComp() {
                         </tr>
                         <tr>
                             <th>性別</th>
-                            <td>{ member.sexFlg === "0" ? "男" : "女" }</td>
+                            <td>{ member.sexFlg === 0 ? "男" : "女" }</td>
                         </tr>
                         <tr>
                             <th>住所</th>
@@ -56,11 +63,11 @@ function InsertComp() {
                         </tr>
                         <tr>
                             <th>役職</th>
-                            <td>{ member.positionName }</td>
+                            <td>{ positions.find(position => position.id == member.positionId) ?.positionName }</td>
                         </tr>
                         <tr>
                             <th>事業所</th>
-                            <td>{ member.placeName }</td>
+                            <td>{ places.find(place => place.id == member.placeId) ?.placeName }</td>
                         </tr>
                     </table>
                 </form>
@@ -69,4 +76,4 @@ function InsertComp() {
     )
 }
 
-export default InsertComp;
+export default Detail;
